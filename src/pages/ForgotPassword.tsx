@@ -13,7 +13,7 @@ export default function ForgotPassword() {
           <img
             src={img}
             alt="key photo"
-            className="rounded-lg"
+            className="rounded-xl"
             loading="lazy"
           />
         </div>

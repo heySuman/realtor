@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import img from "/signin-img.jpg";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import OAuth from "../components/oauth";
@@ -9,6 +9,10 @@ export default function Signin() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [seePassword, setSeePassword] = useState<boolean>(false);
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+  };
   return (
     <section>
       <h1 className="text-center font-bold text-3xl mt-6">SIGN IN</h1>
@@ -17,12 +21,12 @@ export default function Signin() {
           <img
             src={img}
             alt="key photo"
-            className="rounded-lg"
+            className="rounded-xl"
             loading="lazy"
           />
         </div>
         <div className="w-full md:w-3/4 xl:w-[45%] mx-auto flex items-center">
-          <form className="flex flex-wrap gap-3">
+          <form className="flex flex-wrap gap-3" onSubmit={onSubmit}>
             <input
               type="email"
               className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"

@@ -1,12 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import img from "/signin-img.jpg";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import OAuth from "../components/oauth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
+// import { addDoc } from "firebase/firestore";
 
 export default function Signup() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredentials.user;
+
+      updateProfile(user, {
+        displayName: name,
+      });
+
+      // save it in the database
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        createdAt: serverTimestamp(),
+      });
+
+      console.log(user);
+      toast("User Created Successfully!");
+      navigate("/signin");
+      // await addDoc(collection())
+    } catch (error) {
+      console.log(error);
+      toast("Something went wrong with the registration");
+    }
+  };
 
   return (
     <section>
@@ -16,12 +54,12 @@ export default function Signup() {
           <img
             src={img}
             alt="key photo"
-            className="rounded-lg"
+            className="rounded-xl"
             loading="lazy"
           />
         </div>
         <div className="w-full md:w-3/4 xl:w-[45%] mx-auto flex items-center">
-          <form className="flex flex-wrap gap-3">
+          <form className="flex flex-wrap gap-3" onSubmit={onSubmit}>
             <input
               type="text"
               className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
