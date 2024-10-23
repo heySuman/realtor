@@ -1,17 +1,49 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import img from "/signin-img.jpg";
 import { FormEvent, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import OAuth from "../components/oauth";
+import { AuthErrorCodes, signInWithEmailAndPassword } from "firebase/auth";
+import { toast } from "react-toastify";
+import { auth } from "../firebase";
+import { FirebaseError } from "firebase/app";
 
 export default function Signin() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [seePassword, setSeePassword] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    try {
+      const userCredentials = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = userCredentials.user;
+      console.log(user.displayName);
+
+      toast.success("Logged in Successfully!");
+      navigate("/");
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        switch (error?.code) {
+          case AuthErrorCodes.INVALID_EMAIL:
+            toast.error("Email already in use");
+            break;
+          case AuthErrorCodes.INVALID_LOGIN_CREDENTIALS:
+            toast.error("Invalid Credentials");
+            break;
+          default:
+            toast.error("Something went wrong while logging you in");
+            break;
+        }
+      }
+    }
   };
   return (
     <section>

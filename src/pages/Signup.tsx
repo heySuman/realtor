@@ -2,10 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import img from "/signin-img.jpg";
 import { FormEvent, useState } from "react";
 import OAuth from "../components/oauth";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  AuthErrorCodes,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { FirebaseError } from "firebase/app";
 // import { addDoc } from "firebase/firestore";
 
 export default function Signup() {
@@ -37,12 +42,20 @@ export default function Signup() {
       });
 
       console.log(user);
-      toast("User Created Successfully!");
+      toast.success("User Created Successfully!");
       navigate("/signin");
       // await addDoc(collection())
     } catch (error) {
-      console.log(error);
-      toast("Something went wrong with the registration");
+      if (error instanceof FirebaseError) {
+        switch (error?.code) {
+          case AuthErrorCodes.EMAIL_EXISTS:
+            toast.error("Email already in use");
+            break;
+          default:
+            toast.error("Something went wrong with the registration");
+            break;
+        }
+      }
     }
   };
 
@@ -67,6 +80,7 @@ export default function Signup() {
               value={name}
               name="name"
               onChange={(e) => setName(e.target.value)}
+              required
             />
             <input
               type="email"
@@ -75,6 +89,7 @@ export default function Signup() {
               value={email}
               name="email"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <input
               type={"text"}
@@ -83,6 +98,7 @@ export default function Signup() {
               value={password}
               name="password"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <div className="w-full flex justify-between whitespace-nowrap text-sm sm:text-lg px-1">
               <p className="flex items-center">

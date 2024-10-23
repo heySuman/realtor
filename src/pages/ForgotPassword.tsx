@@ -1,10 +1,36 @@
 import { Link } from "react-router-dom";
 import img from "/signin-img.jpg";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import OAuth from "../components/oauth";
+import { AuthErrorCodes, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase";
+import { toast } from "react-toastify";
+import { FirebaseError } from "firebase/app";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
+
+  const handleForgotPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Reset email sent!");
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        switch (error?.code) {
+          case AuthErrorCodes.INVALID_EMAIL:
+            toast.error("Email already in use");
+            break;
+          case AuthErrorCodes.INVALID_LOGIN_CREDENTIALS:
+            toast.error("Invalid Credentials");
+            break;
+          default:
+            toast.error("Something went wrong while sending email");
+            break;
+        }
+      }
+    }
+  };
   return (
     <section>
       <h1 className="text-center font-bold text-3xl mt-6">FORGOT PASSWORD</h1>
@@ -18,7 +44,10 @@ export default function ForgotPassword() {
           />
         </div>
         <div className="w-full md:w-3/4 xl:w-[45%] mx-auto flex items-center">
-          <form className="flex flex-wrap gap-3">
+          <form
+            className="flex flex-wrap gap-3"
+            onSubmit={handleForgotPassword}
+          >
             <input
               type="email"
               className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
@@ -26,6 +55,7 @@ export default function ForgotPassword() {
               value={email}
               name="email"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             <div className="w-full flex justify-between whitespace-nowrap text-sm sm:text-lg px-1">
