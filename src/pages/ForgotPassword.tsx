@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import img from "/signin-img.jpg";
 import { FormEvent, useState } from "react";
 import OAuth from "../components/oauth";
-import { AuthErrorCodes, sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
+import { AuthErrorCodes, getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { toast } from "react-toastify";
 import { FirebaseError } from "firebase/app";
 
@@ -13,6 +12,7 @@ export default function ForgotPassword() {
   const handleForgotPassword = async (e: FormEvent) => {
     e.preventDefault();
     try {
+      const auth = getAuth();
       await sendPasswordResetEmail(auth, email);
       toast.success("Reset email sent!");
     } catch (error) {

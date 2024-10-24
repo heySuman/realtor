@@ -1,5 +1,10 @@
-import { AuthErrorCodes, signInWithPopup } from "firebase/auth";
-import { auth, db, googleProvider } from "../firebase";
+import {
+  AuthErrorCodes,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { db } from "../firebase";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,6 +14,8 @@ export default function OAuth() {
   const navigate = useNavigate();
   const handleGoogleSignIn = async () => {
     try {
+      const auth = getAuth();
+      const googleProvider = new GoogleAuthProvider();
       const res = await signInWithPopup(auth, googleProvider);
       const user = res.user;
 
@@ -17,14 +24,11 @@ export default function OAuth() {
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        //   add the user to the database
-        const userData = {
+        await setDoc(doc(db, "user", user.uid), {
           name: user.displayName,
           email: user.email,
           createdAt: serverTimestamp(),
-        };
-
-        await setDoc(doc(db, "user", user.uid), userData);
+        });
       }
       toast.success("Sign in successful!");
       navigate("/");
@@ -38,7 +42,7 @@ export default function OAuth() {
             toast.error("Invalid Credentials");
             break;
           default:
-            toast.error("Something went wrong with the registration");
+            toast.error("Could not signin with the google");
             break;
         }
       }

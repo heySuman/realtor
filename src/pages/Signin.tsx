@@ -4,9 +4,12 @@ import { FormEvent, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import OAuth from "../components/oauth";
-import { AuthErrorCodes, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  AuthErrorCodes,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { toast } from "react-toastify";
-import { auth } from "../firebase";
 import { FirebaseError } from "firebase/app";
 
 export default function Signin() {
@@ -18,15 +21,8 @@ export default function Signin() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const userCredentials = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      const user = userCredentials.user;
-      console.log(user.displayName);
-
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password);
       toast.success("Logged in Successfully!");
       navigate("/");
     } catch (error) {
@@ -70,6 +66,7 @@ export default function Signin() {
             <div className="relative w-full">
               <input
                 type={seePassword ? "text" : "password"}
+                autoComplete="off"
                 className="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                 placeholder="Password"
                 value={password}

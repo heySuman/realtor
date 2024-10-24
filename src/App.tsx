@@ -8,6 +8,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Header from "./components/header";
 import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
+import PrivateRoute from "./components/privateRoute";
+import CreateListing from "./pages/CreateListing";
 
 function App() {
   return (
@@ -17,7 +19,12 @@ function App() {
         <main className="w-full lg:w-2/3 mx-auto">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<PrivateRoute />}>
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+            <Route path="/create-listing" element={<PrivateRoute />}>
+              <Route path="/create-listing" element={<CreateListing />} />
+            </Route>
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

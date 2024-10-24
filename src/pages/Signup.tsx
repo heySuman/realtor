@@ -5,9 +5,10 @@ import OAuth from "../components/oauth";
 import {
   AuthErrorCodes,
   createUserWithEmailAndPassword,
+  getAuth,
   updateProfile,
 } from "firebase/auth";
-import { auth, db } from "../firebase";
+import { db } from "../firebase";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { FirebaseError } from "firebase/app";
@@ -23,6 +24,7 @@ export default function Signup() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
+      const auth = getAuth();
       const userCredentials = await createUserWithEmailAndPassword(
         auth,
         email,
