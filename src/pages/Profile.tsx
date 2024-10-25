@@ -1,5 +1,7 @@
+import { db } from "@/firebase";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
-import { useState } from "react";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -13,6 +15,8 @@ export default function Profile() {
   });
   const { name, email } = formData;
   const [editActive, setEditActive] = useState(false);
+  const [listing, setListing] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -35,6 +39,33 @@ export default function Profile() {
     await signOut(auth);
     navigate("/");
   };
+
+  // fetch the listings created by the user
+  useEffect(() => {
+    async function fetchUserListings() {
+      setLoading(true);
+      const listingRef = collection(db, "listings");
+      const q = query(
+        listingRef,
+        where("uid", "==", auth.currentUser.uid),
+        orderBy("createdAt", "desc")
+      );
+
+      const querySnap = await getDocs(q);
+      const listings = [];
+      querySnap.forEach((doc) =>
+        listings.push({
+          id: doc.id,
+          data: doc.data,
+        })
+      );
+      setListing(listings);
+      console.log(listing);
+      setLoading(false);
+    }
+
+    fetchUserListings();
+  }, [auth.currentUser.uid]);
 
   return (
     <section>

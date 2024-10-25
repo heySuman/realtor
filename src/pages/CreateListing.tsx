@@ -1,9 +1,21 @@
+import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  getStorage,
+  getDownloadURL,
+  uploadBytesResumable,
+  ref,
+} from "firebase/storage";
+import { getAuth } from "firebase/auth";
+import { v4 as uuidV4 } from "uuid";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "@/firebase";
 
 export default function CreateListing() {
   interface IListing {
@@ -11,14 +23,14 @@ export default function CreateListing() {
     propertyName: string;
     offer: boolean;
     furnished: boolean;
-    discountedPrice: number;
+    discountedPrice: number | undefined;
     parking: boolean;
     bed: number;
     bath: number;
     price: number;
     description: string;
     address: string;
-    images: FileList | null;
+    images: File[] | undefined;
   }
   const [formData, setFormData] = useState<IListing>({
     listingType: "sale",
@@ -32,15 +44,118 @@ export default function CreateListing() {
     price: 0,
     description: "",
     address: "",
-    images: [],
+    images: undefined,
   });
+
+  const [loading, setLoading] = useState(false);
+  if (loading) return <Spinner />;
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setFormData((prev) => ({
+        ...prev,
+        images: prev.images ? [...prev.images, ...newFiles] : newFiles,
+      }));
+    }
+  };
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // validate the data
+
+    if (+formData.discountedPrice > +formData.price) {
+      toast.error("Discount must not be greater than the original price");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.images && formData.images?.length > 6) {
+      toast.error("Images must not exceed 6");
+      setLoading(false);
+      return;
+    }
+
+    // upload the images
+    const auth = getAuth();
+    async function storeImage(image: File) {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage();
+        if (auth.currentUser) {
+          const filename = `${auth.currentUser.uid}-${image.name}-${uuidV4()}`;
+          const storageRef = ref(storage, filename);
+          const uploadTask = uploadBytesResumable(storageRef, image);
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Observe state change events such as progress, pause, and resume
+              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log("Upload is " + progress + "% done");
+              switch (snapshot.state) {
+                case "paused":
+                  console.log("Upload is paused");
+                  break;
+                case "running":
+                  console.log("Upload is running");
+                  break;
+              }
+            },
+            (error) => {
+              // Handle unsuccessful uploads
+              reject(error);
+            },
+            () => {
+              // Handle successful uploads on complete
+              // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL);
+              });
+            }
+          );
+        }
+      });
+    }
+
+    // get the resolved url from the uploadImage
+    let imgUrls;
+    if (formData.images) {
+      imgUrls = await Promise.all(
+        [...formData.images].map((image) => storeImage(image))
+      ).catch((error) => {
+        setLoading(false);
+        toast.error("Images not uploaded");
+        return;
+      });
+    }
+
+    // save the form data to the database
+    if (auth.currentUser) {
+      const formDataCopy = {
+        ...formData,
+        imgUrls,
+        createdAt: serverTimestamp(),
+        uid: auth.currentUser.uid,
+      };
+      delete formDataCopy.images;
+      if (!formDataCopy.offer) delete formDataCopy.discountedPrice;
+
+      await addDoc(collection(db, "listings"), formDataCopy);
+    }
+
+    setLoading(false);
+    toast.success("Lisiting Created");
+  };
 
   return (
     <section>
       <h1 className="my-6 text-3xl font-bold text-center">Create Listing</h1>
       <div className="flex flex-wrap w-[90%] mx-auto gap-4 my-5 lg:w-full xl:my-10 justify-between">
         <div className="w-full md:w-3/4 xl:w-[45%] mx-auto flex items-center">
-          <form className="w-full">
+          <form className="w-full" onSubmit={onSubmit}>
             <RadioGroup
               className="flex justify-around"
               name="listingType"
@@ -273,10 +388,10 @@ export default function CreateListing() {
                 type="file"
                 accept=".jpg,.png,.jpeg,.svg"
                 required
-                multiple
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormData((prev) => ({ ...prev, images: e.target.files }))
-                }
+                multiple={true}
+                max={6}
+                name="file[]"
+                onChange={onFileChange}
               />
             </div>
 
