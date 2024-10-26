@@ -32,7 +32,7 @@ export interface IListing {
   address: string;
   images: File[] | undefined;
 }
-export default function CreateListing() {
+export default function EditListing() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<IListing>({
     listingType: "sale",
@@ -407,7 +407,7 @@ export default function CreateListing() {
               className="bg-blue-600 w-full hover:bg-blue-700"
               type="submit"
             >
-              List Property
+              Update Property
             </Button>
           </form>
         </div>
