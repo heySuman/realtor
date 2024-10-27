@@ -1,11 +1,9 @@
 import { getAuth } from "firebase/auth";
-import { deleteDoc, doc, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { FaLocationDot } from "react-icons/fa6";
 import Moment from "react-moment";
 import { FaTrash } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
-import { db } from "@/firebase";
-import { toast } from "react-toastify";
 
 export interface IListingProp {
   imgUrls: string[];
@@ -74,7 +72,8 @@ export default function MyListing({
           </>
         )}
         <p className="text-xl font-semibold">
-          $ {listing.price} {listing.listingType == "rent" ? "/ month" : ""}
+          {!listing.offer && `$${listing.price}`}
+          {!listing.offer && listing.listingType == "rent" ? "/ month" : ""}
         </p>
       </div>
       {/* Delete Edit Buttons */}

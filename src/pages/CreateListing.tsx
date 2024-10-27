@@ -32,6 +32,7 @@ export interface IListing {
   address: string;
   images: File[] | undefined;
 }
+
 export default function CreateListing() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<IListing>({

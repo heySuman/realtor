@@ -10,6 +10,7 @@ import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import PrivateRoute from "./components/privateRoute";
 import CreateListing from "./pages/CreateListing";
+import EditListing from "./pages/EditListing";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
               <Route path="/create-listing" element={<CreateListing />} />
             </Route>
             <Route path="edit-listing/" element={<PrivateRoute />}>
-              <Route path="/edit-listing/:id" element={<CreateListing />} />
+              <Route path="/edit-listing/:id" element={<EditListing />} />
             </Route>
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
