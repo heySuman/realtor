@@ -29,19 +29,19 @@ export default function MyListing({
 }: {
   id: string;
   listing: IListingProp;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => Promise<void>;
 }) {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
   return (
-    <div className="w-full border-slate-300 p-2 border-2 flex-1 rounded sm:w-[300px] bg-white sm:max-w-[350px]">
+    <div className="w-full border-slate-300 p-4 border-2 flex-1 rounded-2xl sm:w-[300px] bg-white sm:max-w-[350px]">
       <img
         src={listing.imgUrls[0]}
         alt="property image"
         loading="lazy"
-        className="w-full rounded"
+        className="w-full rounded-xl"
       />
       <Moment fromNow className="bg-blue-500 p-1 rounded text-white mt-6">
         {listing.createdAt && listing.createdAt.toDate()}
@@ -59,25 +59,28 @@ export default function MyListing({
         </p>
       </div>
 
-      <div>
+      <div className="my-4">
         {listing.discountedPrice && listing.offer && (
           <>
             <p className="text-md text-gray-500 line-through	">
               $ {listing.price} {listing.listingType == "rent" ? "/ month" : ""}
             </p>
-            <p className="text-xl font-semibold">
+            <p className="text-xl font-bold">
               $ {listing.discountedPrice}{" "}
               {listing.listingType == "rent" ? "/ month" : ""}
             </p>
           </>
         )}
-        <p className="text-xl font-semibold">
+        <p className="text-xl font-bold">
           {!listing.offer && `$${listing.price}`}
           {!listing.offer && listing.listingType == "rent" ? "/ month" : ""}
         </p>
       </div>
       {/* Delete Edit Buttons */}
-      {currentUser && listing.userRef === currentUser.uid ? (
+      {onDelete &&
+      onEdit &&
+      currentUser &&
+      listing.userRef === currentUser.uid ? (
         <div className="flex gap-3 my-3">
           <button
             onClick={() => onDelete(id)}

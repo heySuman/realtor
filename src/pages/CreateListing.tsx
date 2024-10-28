@@ -63,6 +63,17 @@ export default function CreateListing() {
     }
   };
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRadioChange = (name: keyof IListing, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -171,7 +182,10 @@ export default function CreateListing() {
               required
               value={formData.listingType}
               onValueChange={(value: string) =>
-                setFormData((prev) => ({ ...prev, listingType: value }))
+                handleRadioChange(
+                  "listingType",
+                  value === "rent" ? "rent" : "sale"
+                )
               }
             >
               <div className="flex gap-2 items-center">
@@ -191,12 +205,7 @@ export default function CreateListing() {
                 name="propertyName"
                 required
                 value={formData.propertyName}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    [e.target.name]: e.target.value,
-                  }))
-                }
+                onChange={handleInputChange}
               />
             </div>
 
@@ -209,12 +218,7 @@ export default function CreateListing() {
                   min={0}
                   required
                   value={formData.bed}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [e.target.name]: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                 />
               </div>
 
@@ -226,12 +230,7 @@ export default function CreateListing() {
                   min={0}
                   required
                   value={formData.bath}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [e.target.name]: e.target.value,
-                    }))
-                  }
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -243,10 +242,7 @@ export default function CreateListing() {
                 required
                 value={formData.parking ? "yes" : "no"}
                 onValueChange={(value: string) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    parking: value === "yes" ? true : false,
-                  }))
+                  handleRadioChange("parking", value === "yes")
                 }
               >
                 <div className="flex gap-2 items-center ">
@@ -267,10 +263,7 @@ export default function CreateListing() {
                 required
                 value={formData.furnished ? "yes" : "no"}
                 onValueChange={(value: string) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    furnished: value === "yes" ? true : false,
-                  }))
+                  handleRadioChange("furnished", value === "yes")
                 }
               >
                 <div className="flex gap-2 items-center ">
@@ -292,12 +285,7 @@ export default function CreateListing() {
                 type="text"
                 required
                 value={formData.address}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    [e.target.name]: e.target.value,
-                  }))
-                }
+                onChange={handleInputChange}
               />
             </div>
 
@@ -308,12 +296,7 @@ export default function CreateListing() {
                 name="description"
                 required
                 value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    [e.target.name]: e.target.value,
-                  }))
-                }
+                onChange={handleInputChange}
               />
             </div>
 
@@ -324,10 +307,7 @@ export default function CreateListing() {
                 required
                 value={formData.offer ? "yes" : "no"}
                 onValueChange={(value: string) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    offer: value === "yes" ? true : false,
-                  }))
+                  handleRadioChange("offer", value === "yes")
                 }
               >
                 <div className="flex gap-2 items-center ">
@@ -380,12 +360,7 @@ export default function CreateListing() {
                     className="w-1/3"
                     required
                     value={formData.discountedPrice}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>

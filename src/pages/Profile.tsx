@@ -13,7 +13,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { IListing } from "./CreateListing";
 
 export default function Profile() {
   const auth = getAuth();
@@ -49,7 +48,7 @@ export default function Profile() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/");
+    navigate("/signin");
   };
 
   // fetch the listings created by the user
@@ -65,7 +64,7 @@ export default function Profile() {
         );
 
         const querySnap = await getDocs(q);
-        const listings: { id: string; data: IListing }[] = [];
+        const listings: { id: string; data: IListingProp }[] = [];
         querySnap.forEach((doc) =>
           listings.push({
             id: doc.id,

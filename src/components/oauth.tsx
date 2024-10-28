@@ -1,14 +1,6 @@
-import {
-  AuthErrorCodes,
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-import { db } from "../firebase";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FirebaseError } from "firebase/app";
 
 export default function OAuth() {
   const navigate = useNavigate();
@@ -16,36 +8,12 @@ export default function OAuth() {
     try {
       const auth = getAuth();
       const googleProvider = new GoogleAuthProvider();
-      const res = await signInWithPopup(auth, googleProvider);
-      const user = res.user;
+      await signInWithPopup(auth, googleProvider);
 
-      //   check if the user already exists in the database
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        await setDoc(doc(db, "user", user.uid), {
-          name: user.displayName,
-          email: user.email,
-          createdAt: serverTimestamp(),
-        });
-      }
       toast.success("Sign in successful!");
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        switch (error?.code) {
-          case AuthErrorCodes.EMAIL_EXISTS:
-            toast.error("Email already in use");
-            break;
-          case AuthErrorCodes.INVALID_LOGIN_CREDENTIALS:
-            toast.error("Invalid Credentials");
-            break;
-          default:
-            toast.error("Could not signin with the google");
-            break;
-        }
-      }
+      console.log(error);
     }
   };
   return (
