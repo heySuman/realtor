@@ -143,7 +143,7 @@ export default function Home() {
 
       <section className="p-6">
         <h2 className="text-2xl font-bold mt-6">Places for rent</h2>
-        <Link to={"/offers"} className="mb-6 block underline text-orange-600">
+        <Link to={"/rent"} className="mb-6 block underline text-orange-600">
           Show more places to rent
         </Link>
         <div className="flex gap-3">
@@ -155,7 +155,7 @@ export default function Home() {
       </section>
       <section className="p-6">
         <h2 className="text-2xl font-bold mt-6">Places for sale</h2>
-        <Link to={"/offers"} className="mb-6 block underline text-orange-600">
+        <Link to={"/sales"} className="mb-6 block underline text-orange-600">
           Show more places to buy
         </Link>
         <div className="flex gap-3">
