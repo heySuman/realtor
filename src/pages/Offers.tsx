@@ -93,10 +93,10 @@ export default function Offers() {
 
   if (loading) return <Spinner />;
   return (
-    <section>
+    <section className="p-6">
       <h1 className="text-3xl font-bold text-center my-6">Offers</h1>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         {offers &&
           offers.map((i) => (
             <MyListing key={i.id} listing={i.data} id={i.id} />
