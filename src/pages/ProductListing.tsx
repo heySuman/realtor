@@ -141,9 +141,6 @@ export default function ProductListing() {
               </button>
             </div>
           )}
-          {contactLandlord && (
-            <Contact userRef={listing?.userRef} listing={listing && listing} />
-          )}
         </div>
       </div>
     </section>
